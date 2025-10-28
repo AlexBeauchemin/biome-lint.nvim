@@ -110,7 +110,7 @@ end
 local function biome_lint(opts)
 	opts = opts or {}
 	local args = opts.fargs or {}
-	
+
 	-- local file = vim.fn.expand("%")
 	local biome_cmd = find_biome_executable()
 	local config = require("biome-lint").get_config()
