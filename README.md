@@ -28,6 +28,12 @@ use {
 :BiomeLint
 ```
 
+You can also pass additional flags to biome:
+
+```
+:BiomeLint --only=noFloatingPromises
+```
+
 ### Inspiration
 
 [tcs.nvim](https://github.com/dmmulroy/tsc.nvim) 

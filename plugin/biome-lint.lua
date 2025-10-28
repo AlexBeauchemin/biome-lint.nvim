@@ -107,7 +107,10 @@ local function analyze_output(output)
 end
 
 -- Run biome lint and send report to quickfix
-local function biome_lint()
+local function biome_lint(opts)
+	opts = opts or {}
+	local args = opts.fargs or {}
+	
 	-- local file = vim.fn.expand("%")
 	local biome_cmd = find_biome_executable()
 	local config = require("biome-lint").get_config()
@@ -118,6 +121,11 @@ local function biome_lint()
 	show_loading(job_id, "Running Biome's linter...")
 
 	local cmd = biome_cmd .. " lint --diagnostic-level=" .. config.severity .. " --reporter=json"
+
+	-- Add additional flags from command arguments
+	for _, arg in ipairs(args) do
+		cmd = cmd .. " " .. arg
+	end
 
 	-- if file then
 	-- 	cmd = cmd .. " " .. vim.fn.shellescape(file)
@@ -156,4 +164,4 @@ local function biome_lint()
 	end)
 end
 
-vim.api.nvim_create_user_command("BiomeLint", biome_lint, {})
+vim.api.nvim_create_user_command("BiomeLint", biome_lint, { nargs = "*" })
