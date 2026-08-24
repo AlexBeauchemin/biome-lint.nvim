@@ -67,11 +67,19 @@ local function analyze_output(output)
 		for _, diagnostic in ipairs(json_data.diagnostics) do
 			local location = diagnostic.location
 			if location and location.path then
-				-- Parse line/column from span and source code
+				-- Biome 2.x sends the path as a string, older versions as a table
+				local filename = type(location.path) == "table" and location.path.file or location.path
+
 				local line = 1
 				local col = 1
 
-				if location.span and location.sourceCode then
+				if location.start then
+					-- Biome 2.x sends line+column directly
+					line = location.start.line
+					col = location.start.column
+				elseif location.span and location.sourceCode then
+					-- Older versions send a byte span
+					-- Parse line/column from span and source code
 					local start_pos = location.span[1]
 					local source_lines = vim.split(location.sourceCode, "\n")
 					local char_count = 0
@@ -86,12 +94,16 @@ local function analyze_output(output)
 					end
 				end
 
+				-- Biome 2.x uses `"message"`, older versions `"description"`
+				local message = diagnostic.message or diagnostic.description or ""
+				local text = diagnostic.category and (diagnostic.category .. ": " .. message) or message
+
 				table.insert(qf_list, {
-					filename = location.path.file,
+					filename = filename,
 					lnum = line,
 					col = col,
 					type = diagnostic.severity == "error" and "E" or "W",
-					text = diagnostic.category .. ": " .. diagnostic.description,
+					text = text,
 				})
 			end
 		end
