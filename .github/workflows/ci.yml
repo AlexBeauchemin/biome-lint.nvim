@@ -8,6 +8,19 @@ on:
       - main
 
 jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Neovim
+        run: |
+          curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz
+          tar xzf nvim-linux-x86_64.tar.gz
+          echo "$PWD/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+      - name: Run regression test
+        run: nvim --headless -u NONE -S tests/biome-lint_spec.lua
+
   stylua:
     name: Check formatting
     runs-on: ubuntu-latest
